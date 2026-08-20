@@ -1,0 +1,54 @@
+{
+  "compatibility_policy": {
+    "mode": "runtime-contract",
+    "failure_behavior": "fail closed and display a compatibility reason without changing Steam, Gamescope, audio, CEC, or performance-overlay services",
+    "exact_build_pins": false,
+    "exact_bundle_hash_pins": false
+  },
+  "supported_operating_systems": [
+    "SteamOS Gaming Mode",
+    "Bazzite Gaming Mode"
+  ],
+  "required_runtime": {
+    "busctl": {
+      "path": "/usr/bin/busctl",
+      "options": ["--user", "--json=short", "--auto-start=no"]
+    },
+    "cecd": {
+      "service": "com.steampowered.CecDaemon1",
+      "object_manager_path": "/com/steampowered/CecDaemon1",
+      "object_manager_interface": "org.freedesktop.DBus.ObjectManager",
+      "device_interface": "com.steampowered.CecDaemon1.CecDevice1",
+      "selection": "exactly one managed playback endpoint with a strictly typed advisory Active boolean, a real physical address, and an allocated Playback logical address; AudioLogicalAddress is advisory",
+      "status_target": "CEC-defined Audio System logical address 5",
+      "read_method": "GetAudioStatus(y) -> (yb)"
+    },
+    "decky": {
+      "api_package": "@decky/api",
+      "global_component_api": true,
+      "callable_api": true,
+      "event_api": true
+    },
+    "steam_ui": {
+      "composition_hook": "unique add/change/remove method shape",
+      "focus_store": "SteamUIStore.WindowStore with DFL.Router.WindowStore fallback",
+      "focus_action": "unique SetFocusedAppWindowID prototype descriptor; source-validated direct action or source-validated MobX wrapper plus WindowStore class body",
+      "focus_lease_preconditions": "Hidden composition state, zero request counters, zero owners, MainRunningAppID equals focused app, one positive focused native window, and cached selected window sentinel 0",
+      "focus_lease_release": "after DOM removal and Notification hook release, restore sentinel 0 only when selected ID and singleton window list still match the owned lease"
+    }
+  },
+  "integration": {
+    "mount": "existing Steam GamepadUI SP document",
+    "surface_creation": false,
+    "game_visibility": "Steam minimum Notification composition request with a transient fail-closed focused-window lease",
+    "composition_owner": "CECVolumeOSD",
+    "confirmed_state_source": "com.steampowered.CecDaemon1",
+    "cec_device_path": "dynamically discovered from ObjectManager",
+    "command_observer": "/usr/bin/busctl --user --json=short monitor",
+    "read_transport": "/usr/bin/busctl addressed to the current unique owner",
+    "cec_writes": false,
+    "python_dbus": "none",
+    "gamescope_external_overlay": false,
+    "mangoapp_changes": false
+  }
+}

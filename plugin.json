@@ -1,0 +1,11 @@
+{
+  "name": "CEC Volume OSD",
+  "author": "enjihn",
+  "flags": [],
+  "api_version": 1,
+  "publish": {
+    "tags": ["cec", "audio", "volume", "osd"],
+    "description": "Shows confirmed HDMI-CEC volume changes over Steam Home and games without taking Gamescope's performance-overlay plane.",
+    "image": "https://raw.githubusercontent.com/enjihn/cec-volume-osd-decky/main/assets/logo.png"
+  }
+}

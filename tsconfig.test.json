@@ -1,0 +1,17 @@
+{
+  "compilerOptions": {
+    "outDir": ".test-build",
+    "rootDir": "src",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "target": "ES2022",
+    "declaration": false,
+    "strict": true
+  },
+  "include": [
+    "src/composition-state.ts",
+    "src/focus-lease.ts",
+    "src/presentation.ts",
+    "src/osd.ts"
+  ]
+}
