@@ -30,7 +30,7 @@ jobs:
       - run: PYTHON=python ./scripts/check-forbidden-mutations.sh
       - run: PYTHON=python ./scripts/package.sh
       - run: cd artifacts && sha256sum -c SHA256SUMS
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: release-candidate
           path: |
