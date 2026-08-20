@@ -13,7 +13,7 @@ jobs:
   frontend-and-package:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: pnpm/action-setup@v4
         with:
           version: 11.19.0
@@ -45,7 +45,7 @@ jobs:
       matrix:
         python: ["3.11", "3.12", "3.13", "3.14"]
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python }}
@@ -54,7 +54,7 @@ jobs:
   release-boundary:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - run: |
           test -z "$(git ls-files | grep -E '(^|/)(\.env|id_[^/]+|.*\.key|.*\.pem|artifacts/|node_modules/)' || true)"
           ! git grep -nE '192\.168\.|BEGIN (OPENSSH|RSA|EC|DSA) PRIVATE KEY|codex_steam_machine' -- . ':(exclude).github/workflows/ci.yml'
@@ -67,7 +67,7 @@ jobs:
     permissions:
       contents: write
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: pnpm/action-setup@v4
         with:
           version: 11.19.0
