@@ -1,0 +1,92 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  frontend-and-package:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11.19.0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm test
+      - run: pnpm build
+      - run: PYTHON=python ./scripts/check-forbidden-mutations.sh
+      - run: PYTHON=python ./scripts/package.sh
+      - run: cd artifacts && sha256sum -c SHA256SUMS
+      - uses: actions/upload-artifact@v4
+        with:
+          name: release-candidate
+          path: |
+            artifacts/cec-volume-osd-*.zip
+            artifacts/SHA256SUMS
+            artifacts/provenance.json
+
+  python-matrix:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python: ["3.11", "3.12", "3.13", "3.14"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+      - run: PYTHONPATH=py_modules python -m unittest discover -s test -p 'test_*.py'
+
+  release-boundary:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: |
+          test -z "$(git ls-files | grep -E '(^|/)(\.env|id_[^/]+|.*\.key|.*\.pem|artifacts/|node_modules/)' || true)"
+          ! git grep -nE '192\.168\.|BEGIN (OPENSSH|RSA|EC|DSA) PRIVATE KEY|codex_steam_machine' -- . ':(exclude).github/workflows/ci.yml'
+          ! rg -n 'wake_and_activate|CecDevice1\.Wake|GuideButton|GAMESCOPE_EXTERNAL_OVERLAY' main.py py_modules src
+
+  release:
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: [frontend-and-package, python-matrix, release-boundary]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11.19.0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: pnpm install --frozen-lockfile
+      - run: PYTHON=python ./scripts/package.sh
+      - env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "${GITHUB_REF_NAME}" \
+            artifacts/cec-volume-osd-*.zip \
+            artifacts/SHA256SUMS \
+            artifacts/provenance.json \
+            --title "CEC Volume OSD ${GITHUB_REF_NAME}" \
+            --generate-notes \
+            --prerelease

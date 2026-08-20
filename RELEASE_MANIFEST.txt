@@ -1,0 +1,10 @@
+dist/index.js
+package.json
+plugin.json
+main.py
+py_modules/cec_device.py
+py_modules/cec_monitor.py
+compatibility.json
+README.md
+LICENSE
+THIRD_PARTY_NOTICES
