@@ -30,7 +30,7 @@
     "@decky/ui": "4.11.6",
     "@types/react": "19.1.1",
     "@types/react-dom": "19.1.1",
-    "happy-dom": "20.11.1",
+    "happy-dom": "21.0.4",
     "rollup": "4.62.0",
     "typescript": "6.0.3"
   }
